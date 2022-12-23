@@ -241,4 +241,63 @@ window.addEventListener('DOMContentLoaded', () => {
     menuFit.render();
     menuElit.render();
     menuPost.render();
+
+    // Forms
+
+    const forms = document.querySelectorAll('form');
+
+    // Создаем объект со списком фраз для вывода в различных ситуациях
+    const message = {
+        loading: 'Загрузка',
+        success: 'Скоро мы с вами свяжемся',
+        failure: 'Что-то пошло не так...'
+    };
+
+    // Запускаем перебор, что бы все формы на странице работали одинакого
+    forms.forEach(item => {
+        postData(item);
+    });
+    // Создаем ф-цию для отправки данных на сервер
+    function postData(form) {
+        form.addEventListener('submit', (e) => {
+            // Отмена стандартного поведения браузера
+            e.preventDefault();
+
+            // Создаем элемент который будет отображать статус запроса на странице
+            const statusMessage = document.createElement('div');
+            statusMessage.classList.add('status');
+            statusMessage.textContent = message.loading;
+            // Выводим статус загрузки данных при обмене с сервером
+            form.append(statusMessage);
+
+            // Создаем запрос
+            const request = new XMLHttpRequest();
+            // Используем метод open что бы настроить этот запрос, указав метод отправки данных POST и ссылку на сервер URL
+            request.open('POST', 'server.php');
+            // Есть два способа конфертации данных - FormData и JSON
+            // Используем FormData для конвертации данных (из формы) введенных пользователем, в объект
+            // Важно что бы в верстке в form у элементов данные с которых будут идти на сервер (input, option, textaria и т.д.) был указан атрибут name="", иначе FormData не сможет найти этот элемент и взять его value
+
+            // При использовании XMLHttpRequest не нужно использовать метод setRequestHeader
+            // request.setRequestHeader('Content-type', 'multipart/form-data');
+            const formData = new FormData(form);
+
+            // Вызываем метод send (отправка) и указываем новосозданный объект formData которая была создана во время заполнения клиентом
+            request.send(formData);
+
+            // Навешиваем обработчик событий на запрос, говорим что отслеживаем 'load' - конечную загрузку нашего запроса
+            request.addEventListener('load', () => {
+                // Проверяем наш запрос на готовность (200)
+                if (request.status === 200) {
+                    // Смотрим в консоли свойство response (ответ) на запрос
+                    console.log(request.response);
+                    // Выводим статус успешной загрузки данных при обмене с сервером
+                    statusMessage.textContent = message.success;
+                } else {
+                    // Выводим статус ошибки при загрузке данных при обмене с сервером
+                    statusMessage.textContent = message.failure;
+                }
+            });
+        });
+    }
 });
