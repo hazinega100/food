@@ -280,10 +280,22 @@ window.addEventListener('DOMContentLoaded', () => {
 
             // При использовании XMLHttpRequest не нужно использовать метод setRequestHeader
             // request.setRequestHeader('Content-type', 'multipart/form-data');
+            // Для формата JSON заголовок нужен, хотя без него тоже все работает
+            request.setRequestHeader('Content-type', 'application/json');
             const formData = new FormData(form);
 
-            // Вызываем метод send (отправка) и указываем новосозданный объект formData которая была создана во время заполнения клиентом
-            request.send(formData);
+            // ! Вариант с использованием JSON
+            // Поскольку FormData спецефический объект, создаем обычный объект - перебираем св-ва и значения записаные в FormData - записываем их в новый объект 
+            let object = {};
+
+            formData.forEach((value, key) => {
+                object[key] = value;
+            });
+
+            // Вызываем метод send (отправка) и указываем новосозданный объект formData которая была создана во время заполнения клиентом формы
+            // request.send(formData);
+            // Отправляем на сервер объект в формате JSON
+            request.send(JSON.stringify(object));
 
             // Навешиваем обработчик событий на запрос, говорим что отслеживаем 'load' - конечную загрузку нашего запроса
             request.addEventListener('load', () => {
@@ -293,6 +305,12 @@ window.addEventListener('DOMContentLoaded', () => {
                     console.log(request.response);
                     // Выводим статус успешной загрузки данных при обмене с сервером
                     statusMessage.textContent = message.success;
+                    // Очистить форму от введенных данных
+                    form.reset();
+                    // Убирать сообщение через 2 сек
+                    setTimeout(() => {
+                        statusMessage.remove();
+                    }, 2000);
                 } else {
                     // Выводим статус ошибки при загрузке данных при обмене с сервером
                     statusMessage.textContent = message.failure;
