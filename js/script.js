@@ -126,7 +126,7 @@ window.addEventListener('DOMContentLoaded', () => {
         modal.style.display = 'block';
         document.body.style.overflow = 'hidden';
         // Если пользователь открыл модельное окно сам, тогда таймер отключится
-        // clearInterval(modalTimerId);
+        clearInterval(modalTimerId);
     }
 
     function closeModalWindow() {
@@ -273,17 +273,18 @@ window.addEventListener('DOMContentLoaded', () => {
             form.insertAdjacentElement('afterend', statusMessage);
 
             // Создаем запрос
-            const request = new XMLHttpRequest();
+            // const request = new XMLHttpRequest();
             // Используем метод open что бы настроить этот запрос, указав метод отправки данных POST и ссылку на сервер URL
-            request.open('POST', 'server.php');
-            // Есть два способа конфертации данных - FormData и JSON
+            // request.open('POST', 'server.php');
+            // Есть два способа конвертации данных - FormData и JSON
             // Используем FormData для конвертации данных (из формы) введенных пользователем, в объект
             // Важно что бы в верстке в form у элементов данные с которых будут идти на сервер (input, option, textaria и т.д.) был указан атрибут name="", иначе FormData не сможет найти этот элемент и взять его value
 
-            // При использовании XMLHttpRequest не нужно использовать метод setRequestHeader
+            // При использовании FormData без конвертации в JSON не нужно использовать метод setRequestHeader, он прописывается автоматически
             // request.setRequestHeader('Content-type', 'multipart/form-data');
             // Для формата JSON заголовок нужен, хотя без него тоже все работает
-            request.setRequestHeader('Content-type', 'application/json');
+            // request.setRequestHeader('Content-type', 'application/json');
+            // Создаем объект FormData в который будут записываться данные введенные пользователем в form
             const formData = new FormData(form);
 
             // ! Вариант с использованием JSON
@@ -297,26 +298,47 @@ window.addEventListener('DOMContentLoaded', () => {
             // Вызываем метод send (отправка) и указываем новосозданный объект formData которая была создана во время заполнения клиентом формы
             // request.send(formData);
             // Отправляем на сервер объект в формате JSON
-            request.send(JSON.stringify(object));
+            // request.send(JSON.stringify(object));
+
+            // Используем современную технологию работы с сервером fetch API
+            fetch('server.php', {
+                    method: 'POST',
+                    body: JSON.stringify(object),
+                    headers: {
+                        'Content-type': 'application/json'
+                    }
+                })
+                .then(data => data.text())
+                .then(data => {
+                    console.log(data);
+                    showThanksModal(message.success);
+                    statusMessage.remove();
+                })
+                .catch(() => {
+                    showThanksModal(message.failure);
+                })
+                .finally(() => {
+                    form.reset();
+                });
 
             // Навешиваем обработчик событий на запрос, говорим что отслеживаем 'load' - конечную загрузку нашего запроса
-            request.addEventListener('load', () => {
-                // Проверяем наш запрос на готовность (200)
-                if (request.status === 200) {
-                    // Смотрим в консоли свойство response (ответ) на запрос
-                    console.log(request.response);
-                    // Выводим статус успешной загрузки данных при обмене с сервером
-                    // statusMessage.textContent = message.success;
-                    showThanksModal(message.success);
-                    // Очистить форму от введенных данных
-                    form.reset();
-                    statusMessage.remove();
-                } else {
-                    // Выводим статус ошибки при загрузке данных при обмене с сервером
-                    // statusMessage.textContent = message.failure;
-                    showThanksModal(message.failure);
-                }
-            });
+            // request.addEventListener('load', () => {
+            //     // Проверяем наш запрос на готовность (200)
+            //     if (request.status === 200) {
+            //         // Смотрим в консоли свойство response (ответ) на запрос
+            //         console.log(request.response);
+            //         // Выводим статус успешной загрузки данных при обмене с сервером
+            //         // statusMessage.textContent = message.success;
+            //         showThanksModal(message.success);
+            //         // Очистить форму от введенных данных
+            //         form.reset();
+            //         statusMessage.remove();
+            //     } else {
+            //         // Выводим статус ошибки при загрузке данных при обмене с сервером
+            //         // statusMessage.textContent = message.failure;
+            //         showThanksModal(message.failure);
+            //     }
+            // });
         });
     }
 
