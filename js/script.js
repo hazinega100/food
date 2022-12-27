@@ -364,4 +364,9 @@ window.addEventListener('DOMContentLoaded', () => {
             closeModalWindow();
         }, 3000);
     }
+
+    // JSON server
+    fetch('http://localhost:3000/menu')
+        .then(data => data.json())
+        .then(res => console.log(res));
 });
