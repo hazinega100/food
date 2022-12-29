@@ -208,36 +208,62 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    const menuFit = new MenuCard(
-        '../img/tabs/vegy.jpg',
-        'vegy',
-        'Меню "Фитнес"',
-        'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
-        14,
-        '.menu .container'
-    );
-    const menuElit = new MenuCard(
-        '../img/tabs/elite.jpg',
-        'vegy',
-        'Меню "Премиум"',
-        'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!',
-        24,
-        '.menu .container',
-        'menu__item'
-    );
-    const menuPost = new MenuCard(
-        '../img/tabs/post.jpg',
-        'vegy',
-        'Меню "Постное"',
-        'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.',
-        9,
-        '.menu .container',
-        'menu__item'
-    );
+    // Создаем ф-цию получения данных от сервера
+    const getResource = async url => {
+        const res = await fetch(url);
 
-    menuFit.render();
-    menuElit.render();
-    menuPost.render();
+        if (!res.ok) {
+            throw new Error(`Could not fetch ${url}, status: ${res.status}`);
+        }
+
+        return await res.json();
+    };
+
+    // Вызываем ф-цию
+    getResource('http://localhost:3000/menu')
+        .then(data => {
+            data.forEach(({
+                img,
+                altimg,
+                title,
+                descr,
+                price
+            }) => {
+                new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
+            });
+        });
+
+    // Статичный способ создания карточек:
+    // const menuFit = new MenuCard(
+    //     '../img/tabs/vegy.jpg',
+    //     'vegy',
+    //     'Меню "Фитнес"',
+    //     'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!',
+    //     14,
+    //     '.menu .container'
+    // );
+    // const menuElit = new MenuCard(
+    //     '../img/tabs/elite.jpg',
+    //     'vegy',
+    //     'Меню "Премиум"',
+    //     'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!',
+    //     24,
+    //     '.menu .container',
+    //     'menu__item'
+    // );
+    // const menuPost = new MenuCard(
+    //     '../img/tabs/post.jpg',
+    //     'vegy',
+    //     'Меню "Постное"',
+    //     'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.',
+    //     9,
+    //     '.menu .container',
+    //     'menu__item'
+    // );
+
+    // menuFit.render();
+    // menuElit.render();
+    // menuPost.render();
 
     // Forms
 
@@ -252,10 +278,22 @@ window.addEventListener('DOMContentLoaded', () => {
 
     // Запускаем перебор, что бы все формы на странице работали одинакого
     forms.forEach(item => {
-        postData(item);
+        bindPostData(item);
     });
+
+    const postData = async (url, data) => {
+        const res = await fetch(url, {
+            method: 'POST',
+            body: data,
+            headers: {
+                'Content-type': 'application/json'
+            }
+        });
+
+        return await res.json();
+    };
     // Создаем ф-цию для отправки данных на сервер
-    function postData(form) {
+    function bindPostData(form) {
         form.addEventListener('submit', (e) => {
             // Отмена стандартного поведения браузера
             e.preventDefault();
@@ -289,11 +327,16 @@ window.addEventListener('DOMContentLoaded', () => {
 
             // ! Вариант с использованием JSON
             // Поскольку FormData спецефический объект, создаем обычный объект - перебираем св-ва и значения записаные в FormData - записываем их в новый объект 
-            let object = {};
+            // Старый способ
+            // let object = {};
 
-            formData.forEach((value, key) => {
-                object[key] = value;
-            });
+            // formData.forEach((value, key) => {
+            //     object[key] = value;
+            // });
+
+            // Современный способ
+            // Сначала преобразует firmData в матрицу (масивы в массиве), а потом обратно в обычный объект
+            const json = JSON.stringify(Object.fromEntries(formData.entries()));
 
             // Вызываем метод send (отправка) и указываем новосозданный объект formData которая была создана во время заполнения клиентом формы
             // request.send(formData);
@@ -301,14 +344,7 @@ window.addEventListener('DOMContentLoaded', () => {
             // request.send(JSON.stringify(object));
 
             // Используем современную технологию работы с сервером fetch API
-            fetch('server.php', {
-                    method: 'POST',
-                    body: JSON.stringify(object),
-                    headers: {
-                        'Content-type': 'application/json'
-                    }
-                })
-                .then(data => data.text())
+            postData('http://localhost:3000/requests', json)
                 .then(data => {
                     console.log(data);
                     showThanksModal(message.success);
@@ -364,9 +400,4 @@ window.addEventListener('DOMContentLoaded', () => {
             closeModalWindow();
         }, 3000);
     }
-
-    // JSON server
-    fetch('http://localhost:3000/menu')
-        .then(data => data.json())
-        .then(res => console.log(res));
 });
