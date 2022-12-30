@@ -22,6 +22,24 @@
       "price": 21
     }
   ],
+  "slider": [
+    {
+      "img": "img/slider/food-12.jpg",
+      "altimg": "food-12"
+    },
+    {
+      "img": "img/slider/olive-oil.jpg",
+      "altimg": "olive-oil"
+    },
+    {
+      "img": "img/slider/paprika.jpg",
+      "altimg": "paprika"
+    },
+    {
+      "img": "img/slider/pepper.jpg",
+      "altimg": "pepper"
+    }
+  ],
   "requests": [
     {
       "name": "Егор",
@@ -37,6 +55,11 @@
       "name": "Ega",
       "phone": "8(950)223-18-86",
       "id": 3
+    },
+    {
+      "name": "Егор",
+      "phone": "+79213509021",
+      "id": 4
     }
   ]
 }
