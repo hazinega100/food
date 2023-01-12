@@ -1,12 +1,18 @@
-function slider() {
+function slider({
+    slide,
+    prevArrow,
+    nextArrow,
+    totalCounter,
+    currentCounter
+}) {
     // Slider
 
-    const slides = document.querySelectorAll('.offer__slide'),
-        prev = document.querySelector('.offer__slider-prev'),
-        next = document.querySelector('.offer__slider-next'),
+    const slides = document.querySelectorAll(slide),
+        prev = document.querySelector(prevArrow),
+        next = document.querySelector(nextArrow),
         // 8) Кол-во слайдов и какой именно номер слайда 
-        total = document.querySelector('#total'),
-        current = document.querySelector('#current');
+        total = document.querySelector(totalCounter),
+        current = document.querySelector(currentCounter);
 
     // 1) Создаем индекс для подсчета кол-ва слайдов
     let slideIndex = 1;
@@ -53,4 +59,4 @@ function slider() {
     });
 }
 
-module.exports = slider;
+export default slider;

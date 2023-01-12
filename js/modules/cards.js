@@ -1,3 +1,7 @@
+import {
+    getResource
+} from '../services/services';
+
 function cards() {
     // 4 Cards
 
@@ -44,35 +48,10 @@ function cards() {
         }
     }
 
-    // Создаем ф-цию получения данных от сервера
-    const getResource = async url => {
-        const res = await fetch(url);
-
-        if (!res.ok) {
-            throw new Error(`Could not fetch ${url}, status: ${res.status}`);
-        }
-
-        return await res.json();
-    };
-
     // Вызываем ф-цию
-    // getResource('http://localhost:3000/menu')
-    // .then(data => {
-    //     data.forEach(({
-    //         img,
-    //         altimg,
-    //         title,
-    //         descr,
-    //         price
-    //     }) => {
-    //         new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
-    //     });
-    // });
-
-    // Используем библиотеку Axios для получения GET запроса
-    axios.get('http://localhost:3000/menu')
-        .then(item => {
-            item.data.forEach(({
+    getResource('http://localhost:3000/menu')
+        .then(data => {
+            data.forEach(({
                 img,
                 altimg,
                 title,
@@ -82,6 +61,20 @@ function cards() {
                 new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
             });
         });
+
+    // Используем библиотеку Axios для получения GET запроса
+    // axios.get('http://localhost:3000/menu')
+    //     .then(item => {
+    //         item.data.forEach(({
+    //             img,
+    //             altimg,
+    //             title,
+    //             descr,
+    //             price
+    //         }) => {
+    //             new MenuCard(img, altimg, title, descr, price, '.menu .container').render();
+    //         });
+    //     });
 
     // Статичный способ создания карточек:
     // const menuFit = new MenuCard(
@@ -116,4 +109,4 @@ function cards() {
     // menuPost.render();
 }
 
-module.exports = cards;
+export default cards;

@@ -1,7 +1,15 @@
-function forms() {
+import {
+    closeModalWindow,
+    openModalWindow
+} from "./modal";
+import {
+    postData
+} from "../services/services";
+
+function forms(formSelector, modalTimerId) {
     // Forms
 
-    const forms = document.querySelectorAll('form');
+    const forms = document.querySelectorAll(formSelector);
 
     // Создаем объект со списком фраз для вывода в различных ситуациях
     const message = {
@@ -15,17 +23,6 @@ function forms() {
         bindPostData(item);
     });
 
-    const postData = async (url, data) => {
-        const res = await fetch(url, {
-            method: 'POST',
-            body: data,
-            headers: {
-                'Content-type': 'application/json'
-            }
-        });
-
-        return await res.json();
-    };
     // Создаем ф-цию для отправки данных на сервер
     function bindPostData(form) {
         form.addEventListener('submit', (e) => {
@@ -116,7 +113,7 @@ function forms() {
         const prevModalDialog = document.querySelector('.modal__dialog');
 
         prevModalDialog.hidden = true;
-        openModalWindow();
+        openModalWindow('.modal', modalTimerId);
 
         const thanksModal = document.createElement('div');
         thanksModal.classList.add('modal__dialog');
@@ -126,14 +123,14 @@ function forms() {
                 <div class="modal__title">${message}</div>
             </div>  
         `;
-        modal.append(thanksModal);
+        document.querySelector('.modal').append(thanksModal);
 
         setTimeout(() => {
             thanksModal.remove();
             prevModalDialog.hidden = false;
-            closeModalWindow();
+            closeModalWindow('.modal');
         }, 3000);
     }
 }
 
-module.exports = forms;
+export default forms;

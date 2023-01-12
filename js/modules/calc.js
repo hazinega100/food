@@ -111,4 +111,4 @@ function calc() {
     getDynemicInformation('#age');
 }
 
-module.exports = calc;
+export default calc;
